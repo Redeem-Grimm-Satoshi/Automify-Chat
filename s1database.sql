@@ -53,7 +53,6 @@ CREATE TABLE `signup` (
 --
 
 INSERT INTO `signup` (`uid`, `username`, `email`, `password`) VALUES
-(32, 'Redeem_Grimm', 'redeemgenius@gmail.com', 'MBAHREDEEMANJOH'),
 (33, 'PHP', 'developer@gmail.com', 'PHP'),
 (34, 'Java_Programmer', 'developer@gmail.com', 'developer'),
 (35, 'John', 'developer@gmail.com', 'john'),
