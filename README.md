@@ -3,3 +3,5 @@ AutomifyChat is a simple mobile app for Java developers around the world to Chat
 
 # Logo
 ![automifychat logo](images/logo.png)
+
+//New Update Comming Soon!
