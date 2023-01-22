@@ -1,6 +1,5 @@
 # AutomX-Innovation
-AutomifyChat is a simple webchat application for java developers,
-For them to easily share ideas and build new amazing applications
+AutomifyChat is a simple mobile app for Java developers around the world to Chat, Share Ideas and Solutions.
 
 # Logo
 ![automifychat logo](images/logo.png)
