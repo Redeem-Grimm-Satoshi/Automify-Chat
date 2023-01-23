@@ -2,7 +2,7 @@
 AutomifyChat is a simple mobile app for Java developers around the world to Chat, Share Ideas and Solutions.
 
 # Features
-Peer to Peer Chating System
+Peer to Peer Chating System,
 File Sharing
 
 
