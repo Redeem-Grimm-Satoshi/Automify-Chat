@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='Notifications — AutomifyChat', sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">Notifications</h2>
+        <form th:action="@{/notifications/read-all}" method="post">
+            <button type="submit" class="btn btn-sm">Mark all read</button>
+        </form>
+    </div>
+
+    <div th:if="${#lists.isEmpty(notifications)}" class="empty" style="margin-top: 20px;">No notifications yet.</div>
+
+    <div th:each="n : ${notifications}" class="notif-item" th:classappend="${n.read} ? '' : ' unread'">
+        <span class="dot" th:text="${n.read} ? '' : '●'"></span>
+        <div style="flex:1;">
+            <div>
+                <strong th:if="${n.actor != null}">
+                    <a th:href="@{|/u/${n.actor.username}|}" th:text="${n.actor.username}">user</a>
+                </strong>
+                <span th:switch="${n.notifType.name()}">
+                    <span th:case="'REPLY_TO_POST'">commented on your post</span>
+                    <span th:case="'REPLY_TO_COMMENT'">replied to your comment</span>
+                    <span th:case="'ACCEPTED_ANSWER'">marked your answer as accepted</span>
+                    <span th:case="'MENTION'">mentioned you</span>
+                </span>
+                <a th:if="${n.targetPost != null}" th:href="@{|/posts/${n.targetPost.id}|}"
+                   th:text="${n.targetPost.title}">post</a>
+            </div>
+            <div class="meta" th:if="${n.excerpt}" th:text="${n.excerpt}">excerpt</div>
+            <div class="meta" th:text="${#temporals.format(n.createdAt, 'yyyy-MM-dd HH:mm')}">date</div>
+        </div>
+        <form th:if="${!n.read}" th:action="@{|/notifications/${n.id}/read|}" method="post">
+            <button type="submit" class="btn btn-sm">Mark read</button>
+        </form>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='AutomifyChat — Feed', sidebar=null, singleColumn=false)}">
+<body>
+<section>
+    <div th:if="${param.loggedOut}" class="notice">You have been logged out.</div>
+    <div class="sort-tabs">
+        <a th:href="@{/(sort='new')}" th:classappend="${sort == 'new'} ? ' active' : ''">New</a>
+        <a th:href="@{/(sort='top')}" th:classappend="${sort == 'top'} ? ' active' : ''">Top</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(posts)}" class="empty">
+        <p>No posts yet. <a th:href="@{/posts/new}">Be the first to post</a>.</p>
+    </div>
+
+    <article th:each="p : ${posts}" class="card">
+        <div th:replace="~{fragments/vote :: widget(targetType='post', targetId=${p.id}, score=${p.score}, currentVote=0)}"></div>
+        <div class="card-main">
+            <h2>
+                <span class="badge"
+                      th:classappend="${p.postType.name() == 'QUESTION'} ? ' badge-question' : ' badge-discussion'"
+                      th:text="${p.postType.name() == 'QUESTION'} ? 'Q&amp;A' : 'Discussion'">Discussion</span>
+                <a th:href="@{|/posts/${p.id}|}" th:text="${p.title}">Title</a>
+            </h2>
+            <div class="meta">
+                <a th:href="@{|/c/${p.community.slug}|}" class="badge badge-community" th:text="|c/${p.community.slug}|">c/slug</a>
+                · by <a th:href="@{|/u/${p.author.username}|}" th:text="${p.author.username}">user</a>
+                · <span th:text="${#temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
+            </div>
+        </div>
+    </article>
+</section>
+</body>
+</html>

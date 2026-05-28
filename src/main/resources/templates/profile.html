@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle=|u/${profile.username} — AutomifyChat|, sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div class="profile-header">
+        <div>
+            <h1 th:text="|u/${profile.username}|">u/username</h1>
+            <div class="meta">
+                Joined <span th:text="${#temporals.format(profile.createdAt, 'yyyy-MM-dd')}">date</span>
+            </div>
+        </div>
+        <div style="margin-left:auto; text-align:right;">
+            <div class="karma" th:text="${profile.karma}">0</div>
+            <div class="karma-label">karma</div>
+        </div>
+    </div>
+
+    <h3 class="section-title">Recent posts</h3>
+    <div th:if="${#lists.isEmpty(posts)}" class="empty">No posts yet.</div>
+    <article th:each="p : ${posts}" class="card card-stack">
+        <h2>
+            <span class="badge"
+                  th:classappend="${p.postType.name() == 'QUESTION'} ? ' badge-question' : ' badge-discussion'"
+                  th:text="${p.postType.name() == 'QUESTION'} ? 'Q&amp;A' : 'Discussion'">Discussion</span>
+            <a th:href="@{|/posts/${p.id}|}" th:text="${p.title}">title</a>
+        </h2>
+        <div class="meta">
+            <a th:href="@{|/c/${p.community.slug}|}" class="badge badge-community" th:text="|c/${p.community.slug}|">c/slug</a>
+            · <span th:text="${#temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
+            · score <span th:text="${p.score}">0</span>
+        </div>
+    </article>
+
+    <h3 class="section-title">Recent comments</h3>
+    <div th:if="${#lists.isEmpty(comments)}" class="empty">No comments yet.</div>
+    <div th:each="c : ${comments}" class="card card-stack">
+        <div class="meta">
+            on <a th:href="@{|/posts/${c.post.id}|}" th:text="${c.post.title}">post</a>
+            · <span th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
+            · score <span th:text="${c.score}">0</span>
+        </div>
+        <div class="markdown" th:utext="${@markdownRenderer.render(c.bodyMd)}">body</div>
+    </div>
+</section>
+</body>
+</html>

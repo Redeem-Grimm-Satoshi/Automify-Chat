@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle=${post.title}, sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <article class="card">
+        <div th:replace="~{fragments/vote :: widget(targetType='post', targetId=${post.id}, score=${post.score}, currentVote=0)}"></div>
+        <div class="card-main">
+            <h2 style="margin-top: 0;">
+                <span class="badge"
+                      th:classappend="${post.postType.name() == 'QUESTION'} ? ' badge-question' : ' badge-discussion'"
+                      th:text="${post.postType.name() == 'QUESTION'} ? 'Q&amp;A' : 'Discussion'">Discussion</span>
+                <span th:text="${post.title}">Title</span>
+            </h2>
+            <div class="meta">
+                <a th:href="@{|/c/${post.community.slug}|}" class="badge badge-community" th:text="|c/${post.community.slug}|">c/slug</a>
+                · by <a th:href="@{|/u/${post.author.username}|}" th:text="${post.author.username}">user</a>
+                · <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
+            </div>
+            <div th:if="${not #lists.isEmpty(post.tags)}" style="margin-top: 6px;">
+                <a th:each="t : ${post.tags}"
+                   th:href="@{|/c/${post.community.slug}|(tag=${t.name})}"
+                   class="tag" th:text="|#${t.name}|">#tag</a>
+            </div>
+            <div class="markdown" th:utext="${@markdownRenderer.render(post.bodyMd)}">Body</div>
+            <div class="comment-actions" sec:authorize="isAuthenticated()">
+                <form th:if="${post.author.username == #authentication.name}"
+                      th:action="@{|/posts/${post.id}/delete|}" method="post" style="display:inline">
+                    <button type="submit" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:0;">Delete</button>
+                </form>
+                <form th:unless="${post.author.username == #authentication.name}"
+                      th:action="@{|/posts/${post.id}/report|}" method="post" style="display:inline">
+                    <input type="hidden" name="reason" value="Reported via post detail">
+                    <button type="submit" style="background:none; border:none; color:var(--muted); cursor:pointer; padding:0;">Report</button>
+                </form>
+            </div>
+        </div>
+    </article>
+
+    <h3 style="margin-top: 24px;">Comments</h3>
+
+    <form sec:authorize="isAuthenticated()"
+          th:action="@{|/posts/${post.id}/comments|}" th:object="${commentForm}" method="post" class="card card-stack">
+        <div class="field">
+            <textarea th:field="*{body}" class="small" placeholder="Add a comment (Markdown + @mentions supported)" required></textarea>
+            <div class="error" th:if="${#fields.hasErrors('body')}" th:errors="*{body}"></div>
+        </div>
+        <input type="hidden" th:field="*{parentCommentId}">
+        <button type="submit" class="btn btn-primary btn-sm">Comment</button>
+    </form>
+
+    <div sec:authorize="!isAuthenticated()" class="notice">
+        <a th:href="@{/login}">Log in</a> or <a th:href="@{/signup}">sign up</a> to comment.
+    </div>
+
+    <div th:if="${#lists.isEmpty(comments)}" class="empty">No comments yet.</div>
+
+    <div th:each="node : ${comments}"
+         th:style="|margin-left: ${node.depth() * 24}px|"
+         class="comment"
+         th:classappend="${node.accepted()} ? ' accepted' : '' + (${node.comment().deleted} ? ' deleted' : '')">
+
+        <th:block th:if="${node.comment().deleted}">
+            <div class="placeholder">[deleted by author]</div>
+        </th:block>
+
+        <th:block th:unless="${node.comment().deleted}">
+            <div class="meta">
+                <span th:if="${node.accepted()}" class="badge badge-accepted">✓ Accepted answer</span>
+                <strong><a th:href="@{|/u/${node.comment().author.username}|}" th:text="${node.comment().author.username}">user</a></strong>
+                · <span th:text="${#temporals.format(node.comment().createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
+                · score <span th:text="${node.comment().score}">0</span>
+            </div>
+            <div class="markdown" th:utext="${@markdownRenderer.render(node.comment().bodyMd)}">body</div>
+            <div class="comment-actions">
+                <div th:replace="~{fragments/vote :: widget(targetType='comment', targetId=${node.comment().id}, score=${node.comment().score}, currentVote=0)}"></div>
+                <button sec:authorize="isAuthenticated()" type="button"
+                        th:attr="onclick=|document.getElementById('reply-${node.comment().id}').classList.toggle('open')|">Reply</button>
+                <form sec:authorize="isAuthenticated()"
+                      th:if="${post.postType.name() == 'QUESTION'
+                              and post.author.username == #authentication.name
+                              and (post.acceptedAnswerCommentId == null or post.acceptedAnswerCommentId != node.comment().id)}"
+                      th:action="@{|/posts/${post.id}/accept/${node.comment().id}|}" method="post" style="display:inline">
+                    <button type="submit" style="background:none; border:none; color: var(--accepted); cursor:pointer; padding:0;">✓ Mark accepted</button>
+                </form>
+                <form sec:authorize="isAuthenticated()"
+                      th:if="${node.comment().author.username == #authentication.name}"
+                      th:action="@{|/comments/${node.comment().id}/delete|}" method="post" style="display:inline">
+                    <input type="hidden" name="postId" th:value="${post.id}">
+                    <button type="submit" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:0;">Delete</button>
+                </form>
+            </div>
+            <form sec:authorize="isAuthenticated()"
+                  th:id="|reply-${node.comment().id}|"
+                  th:action="@{|/posts/${post.id}/comments|}" method="post" class="reply-form">
+                <div class="field">
+                    <textarea name="body" class="small" placeholder="Reply..." required></textarea>
+                </div>
+                <input type="hidden" name="parentCommentId" th:value="${node.comment().id}">
+                <button type="submit" class="btn btn-primary btn-sm">Post reply</button>
+            </form>
+        </th:block>
+    </div>
+</section>
+</body>
+</html>

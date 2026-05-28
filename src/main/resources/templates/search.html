@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='Search — AutomifyChat', sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <h2 th:if="${q != null and !q.isBlank()}" style="margin-top:0;">
+        Search results for <em th:text="|&quot;${q}&quot;|">"..."</em>
+    </h2>
+    <p th:if="${q == null or q.isBlank()}" class="empty">Type a query in the search box above.</p>
+
+    <th:block th:if="${q != null and !q.isBlank()}">
+        <h3 class="section-title">Posts (<span th:text="${#lists.size(postHits)}">0</span>)</h3>
+        <div th:if="${#lists.isEmpty(postHits)}" class="empty">No matching posts.</div>
+        <article th:each="p : ${postHits}" class="card card-stack">
+            <h2>
+                <span class="badge"
+                      th:classappend="${p.postType.name() == 'QUESTION'} ? ' badge-question' : ' badge-discussion'"
+                      th:text="${p.postType.name() == 'QUESTION'} ? 'Q&amp;A' : 'Discussion'">Discussion</span>
+                <a th:href="@{|/posts/${p.id}|}" th:text="${p.title}">title</a>
+            </h2>
+            <div class="meta">
+                <a th:href="@{|/c/${p.community.slug}|}" class="badge badge-community" th:text="|c/${p.community.slug}|">c/slug</a>
+                · by <a th:href="@{|/u/${p.author.username}|}" th:text="${p.author.username}">user</a>
+            </div>
+        </article>
+
+        <h3 class="section-title">Comments (<span th:text="${#lists.size(commentHits)}">0</span>)</h3>
+        <div th:if="${#lists.isEmpty(commentHits)}" class="empty">No matching comments.</div>
+        <div th:each="c : ${commentHits}" class="card card-stack">
+            <div class="meta">
+                <a th:href="@{|/u/${c.author.username}|}" th:text="${c.author.username}">user</a>
+                on <a th:href="@{|/posts/${c.post.id}|}" th:text="${c.post.title}">post</a>
+            </div>
+            <div class="markdown" th:utext="${@markdownRenderer.render(c.bodyMd)}">body</div>
+        </div>
+    </th:block>
+</section>
+</body>
+</html>

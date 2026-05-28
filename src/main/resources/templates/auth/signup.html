@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='Sign up — AutomifyChat', sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div class="card" style="max-width: 480px; margin: 40px auto;">
+        <h2 style="margin-top: 0;">Create your account</h2>
+        <div th:if="${signupError}" class="error" style="margin-bottom: 12px;" th:text="${signupError}"></div>
+        <form th:action="@{/signup}" th:object="${form}" method="post">
+            <div class="field">
+                <label for="username">Username</label>
+                <input id="username" type="text" th:field="*{username}" required>
+                <div class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+            </div>
+            <div class="field">
+                <label for="email">Email</label>
+                <input id="email" type="email" th:field="*{email}" required>
+                <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+            <div class="field">
+                <label for="password">Password (min 8 characters)</label>
+                <input id="password" type="password" th:field="*{password}" required>
+                <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign up</button>
+            <a th:href="@{/login}" class="btn">Already have an account?</a>
+        </form>
+    </div>
+</section>
+</body>
+</html>

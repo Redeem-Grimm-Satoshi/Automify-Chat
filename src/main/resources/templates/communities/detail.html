@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle=|c/${community.slug} — AutomifyChat|, sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div class="card card-stack">
+        <h2 style="margin-top: 0;">
+            <span th:text="|c/${community.slug}|">c/slug</span>
+            — <span style="color: var(--muted); font-weight: normal;" th:text="${community.name}">Name</span>
+        </h2>
+        <p th:text="${community.description}">description</p>
+        <div>
+            <form sec:authorize="isAuthenticated()"
+                  th:action="@{|/c/${community.slug}/join|}" method="post" style="display:inline">
+                <button class="btn btn-sm">Join</button>
+            </form>
+            <a sec:authorize="isAuthenticated()"
+               th:href="@{|/posts/new(c=${community.slug})|}" class="btn btn-primary btn-sm">+ New post in c/<span th:text="${community.slug}">slug</span></a>
+        </div>
+    </div>
+
+    <div th:if="${activeTag}" class="notice">
+        Filtered by tag: <span class="tag active" th:text="|#${activeTag}|">#tag</span>
+        <a th:href="@{|/c/${community.slug}|}" style="margin-left: 8px;">Clear filter</a>
+    </div>
+
+    <div class="sort-tabs" th:unless="${activeTag}">
+        <a th:href="@{|/c/${community.slug}|(sort='new')}" th:classappend="${sort == 'new'} ? ' active' : ''">New</a>
+        <a th:href="@{|/c/${community.slug}|(sort='top')}" th:classappend="${sort == 'top'} ? ' active' : ''">Top</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(posts)}" class="empty">No posts in this community yet.</div>
+
+    <article th:each="p : ${posts}" class="card">
+        <div th:replace="~{fragments/vote :: widget(targetType='post', targetId=${p.id}, score=${p.score}, currentVote=0)}"></div>
+        <div class="card-main">
+            <h2>
+                <span class="badge"
+                      th:classappend="${p.postType.name() == 'QUESTION'} ? ' badge-question' : ' badge-discussion'"
+                      th:text="${p.postType.name() == 'QUESTION'} ? 'Q&amp;A' : 'Discussion'">Discussion</span>
+                <a th:href="@{|/posts/${p.id}|}" th:text="${p.title}">Title</a>
+            </h2>
+            <div class="meta">
+                by <a th:href="@{|/u/${p.author.username}|}" th:text="${p.author.username}">user</a>
+                · <span th:text="${#temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm')}">date</span>
+            </div>
+            <div th:if="${not #lists.isEmpty(p.tags)}" style="margin-top: 6px;">
+                <a th:each="t : ${p.tags}"
+                   th:href="@{|/c/${community.slug}|(tag=${t.name})}"
+                   class="tag" th:text="|#${t.name}|">#tag</a>
+            </div>
+        </div>
+    </article>
+</section>
+</body>
+</html>

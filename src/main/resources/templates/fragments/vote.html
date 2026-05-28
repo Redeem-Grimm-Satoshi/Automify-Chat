@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="widget" class="vote"
+     th:id="|vote-${targetType}-${targetId}|">
+    <span sec:authorize="isAuthenticated()">
+        <button class="up" th:classappend="${currentVote == 1} ? ' active' : ''"
+                th:hx-post="@{|/${targetType}s/${targetId}/vote?value=1|}"
+                hx-target="closest .vote"
+                hx-swap="outerHTML"
+                hx-headers='{"X-CSRF-TOKEN-required": "true"}'
+                title="Upvote">▲</button>
+    </span>
+    <span sec:authorize="!isAuthenticated()">
+        <a class="up" th:href="@{/login}" title="Log in to vote">▲</a>
+    </span>
+    <span class="score" th:text="${score}">0</span>
+    <span sec:authorize="isAuthenticated()">
+        <button class="down" th:classappend="${currentVote == -1} ? ' active' : ''"
+                th:hx-post="@{|/${targetType}s/${targetId}/vote?value=-1|}"
+                hx-target="closest .vote"
+                hx-swap="outerHTML"
+                title="Downvote">▼</button>
+    </span>
+    <span sec:authorize="!isAuthenticated()">
+        <a class="down" th:href="@{/login}" title="Log in to vote">▼</a>
+    </span>
+</div>
+</body>
+</html>
