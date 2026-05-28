@@ -1,6 +1,6 @@
 # AutomifyChat
 
-A community site for JVM developers — discussion threads and Q&A posts, organized into communities. Reddit-style hot/new/top feeds, Stack Overflow-style accepted answers. Built in Spring Boot, eating its own dogfood.
+A community site for JVM developers - discussion threads and Q&A posts, organized into communities. Reddit-style hot/new/top feeds, Stack Overflow-style accepted answers. Built in Spring Boot, eating its own dogfood.
 
 ![logo](src/main/resources/static/images/logo.png)
 
