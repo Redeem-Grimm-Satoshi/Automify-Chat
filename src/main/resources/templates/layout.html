@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle ?: 'AutomifyChat'}">AutomifyChat</title>
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/atom-one-dark.min.css">
+    <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js" defer></script>
+    <script defer>
+        document.addEventListener('DOMContentLoaded', () => { if (window.hljs) window.hljs.highlightAll(); });
+        document.addEventListener('htmx:afterSwap', () => { if (window.hljs) window.hljs.highlightAll(); });
+    </script>
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" th:href="@{/}">
+        <img th:src="@{/images/logo.png}" alt="AutomifyChat">
+        <span>AutomifyChat</span>
+    </a>
+    <form class="search-form" th:action="@{/search}" method="get">
+        <input type="search" name="q" placeholder="Search posts and comments..." th:value="${q}">
+    </form>
+    <nav class="nav">
+        <a th:href="@{/}">Feed</a>
+        <a th:href="@{/c}">Communities</a>
+        <span sec:authorize="isAuthenticated()">
+            <a th:href="@{/notifications}" class="bell" title="Notifications">
+                🔔<span th:if="${unreadNotificationCount > 0}" class="bell-count"
+                       th:text="${unreadNotificationCount}">0</span>
+            </a>
+            <a th:href="@{/posts/new}" class="btn btn-primary">New post</a>
+            <a class="user" th:href="@{|/u/${#authentication.name}|}" sec:authentication="name">user</a>
+            <form th:action="@{/logout}" method="post" style="display:inline">
+                <button type="submit" class="btn">Logout</button>
+            </form>
+        </span>
+        <span sec:authorize="!isAuthenticated()">
+            <a th:href="@{/login}" class="btn">Login</a>
+            <a th:href="@{/signup}" class="btn btn-primary">Sign up</a>
+        </span>
+    </nav>
+</header>
+<main th:class="${singleColumn} ? 'layout layout-single' : 'layout'">
+    <section>
+        <div th:if="${flash}" class="flash" th:text="${flash}"></div>
+        <div th:replace="${content}">Page content</div>
+    </section>
+    <aside class="sidebar" th:unless="${singleColumn}">
+        <div th:replace="~{layout :: defaultSidebar}">sidebar</div>
+    </aside>
+</main>
+
+<th:block th:fragment="defaultSidebar">
+    <div class="panel">
+        <h3>Communities</h3>
+        <ul th:if="${communities}">
+            <li th:each="c : ${communities}">
+                <a th:href="@{|/c/${c.slug}|}">c/<span th:text="${c.slug}">slug</span></a>
+            </li>
+        </ul>
+        <a th:href="@{/c/new}" sec:authorize="isAuthenticated()" class="btn btn-sm" style="margin-top: 10px;">+ Create</a>
+    </div>
+</th:block>
+</body>
+</html>

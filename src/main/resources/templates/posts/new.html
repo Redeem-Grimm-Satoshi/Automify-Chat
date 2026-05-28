@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='New post — AutomifyChat', sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div class="card card-stack">
+        <h2 style="margin-top: 0;">New post</h2>
+        <form th:action="@{/posts}" th:object="${form}" method="post">
+            <div class="field">
+                <label for="community">Community</label>
+                <select id="community" th:field="*{community}" required>
+                    <option value="">Choose a community...</option>
+                    <option th:each="c : ${communities}"
+                            th:value="${c.slug}"
+                            th:text="|c/${c.slug} — ${c.name}|">c/slug</option>
+                </select>
+                <div class="error" th:if="${#fields.hasErrors('community')}" th:errors="*{community}"></div>
+            </div>
+            <div class="field">
+                <label for="postType">Type</label>
+                <select id="postType" th:field="*{postType}">
+                    <option value="DISCUSSION">Discussion</option>
+                    <option value="QUESTION">Question (Q&amp;A — can mark accepted answer)</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="title">Title</label>
+                <input id="title" type="text" th:field="*{title}" maxlength="300" required>
+                <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+            </div>
+            <div class="field">
+                <label for="tags">Tags (optional, up to 5; space or comma separated)</label>
+                <input id="tags" type="text" th:field="*{tags}" placeholder="spring-boot junit jpa">
+                <div class="meta">Lowercase letters, digits, hyphens.</div>
+            </div>
+            <div class="field">
+                <label for="bodyMd">Body (Markdown — fenced ```java code blocks + @mentions supported)</label>
+                <textarea id="bodyMd" th:field="*{bodyMd}" required></textarea>
+                <div class="error" th:if="${#fields.hasErrors('bodyMd')}" th:errors="*{bodyMd}"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Publish</button>
+            <a th:href="@{/}" class="btn">Cancel</a>
+        </form>
+    </div>
+</section>
+</body>
+</html>

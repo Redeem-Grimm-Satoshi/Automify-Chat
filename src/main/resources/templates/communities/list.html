@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='Communities — AutomifyChat', sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <h2 style="margin: 0;">Communities</h2>
+        <a sec:authorize="isAuthenticated()" th:href="@{/c/new}" class="btn btn-primary">+ New community</a>
+    </div>
+
+    <article th:each="c : ${communities}" class="card card-stack">
+        <h2>
+            <a th:href="@{|/c/${c.slug}|}" th:text="|c/${c.slug}|">c/slug</a>
+            — <span th:text="${c.name}" style="color: var(--muted); font-weight: normal;">Name</span>
+        </h2>
+        <div class="meta" th:text="${c.description}">description</div>
+    </article>
+</section>
+</body>
+</html>

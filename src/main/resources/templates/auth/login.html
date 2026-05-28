@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='Login — AutomifyChat', sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div class="card" style="max-width: 420px; margin: 40px auto;">
+        <h2 style="margin-top: 0;">Log in</h2>
+        <div th:if="${param.error}" class="error" style="margin-bottom: 12px;">Invalid username or password.</div>
+        <div th:if="${param.registered}" class="notice">Account created. Log in to continue.</div>
+        <form th:action="@{/login}" method="post">
+            <div class="field">
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" required autofocus>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Log in</button>
+            <a th:href="@{/signup}" class="btn">Create account</a>
+        </form>
+    </div>
+</section>
+</body>
+</html>

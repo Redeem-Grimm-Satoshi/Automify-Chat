@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::section}, pageTitle='New community — AutomifyChat', sidebar=null, singleColumn=true)}">
+<body>
+<section>
+    <div class="card card-stack" style="max-width: 560px;">
+        <h2 style="margin-top: 0;">Create a community</h2>
+        <div th:if="${communityError}" class="error" style="margin-bottom: 12px;" th:text="${communityError}"></div>
+        <form th:action="@{/c}" th:object="${form}" method="post">
+            <div class="field">
+                <label for="slug">URL slug</label>
+                <input id="slug" type="text" th:field="*{slug}" placeholder="e.g. jakarta-ee" maxlength="40" required>
+                <div class="meta">3–40 chars: lowercase, digits, hyphens. Will be /c/&lt;slug&gt;.</div>
+                <div class="error" th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}"></div>
+            </div>
+            <div class="field">
+                <label for="name">Display name</label>
+                <input id="name" type="text" th:field="*{name}" maxlength="80" required>
+                <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+            <div class="field">
+                <label for="description">Description (optional)</label>
+                <textarea id="description" th:field="*{description}" maxlength="280" class="small"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+            <a th:href="@{/c}" class="btn">Cancel</a>
+        </form>
+    </div>
+</section>
+</body>
+</html>
